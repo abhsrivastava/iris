@@ -1,17 +1,13 @@
 package com.abhi
 
 import org.apache.spark._
-import org.apache.spark.sql._
 import org.apache.spark.mllib.classification._
 import org.apache.spark.mllib.evaluation._
 import org.apache.spark.mllib.util._
 
 object LinearSVM extends App {
-    val spark = SparkSession
-                    .builder
-                    .master("local[*]")
-                    .appName("Linear Support Vector Machine")
-                    .getOrCreate()
+    Utils.deleteDirectory("model")
+    val spark = Utils.getSparkSession()
     val data = MLUtils
                     .loadLibSVMFile(
                         spark.sparkContext, 
@@ -30,8 +26,8 @@ object LinearSVM extends App {
     val metrics = new BinaryClassificationMetrics(scoreAndLabels)
     val auROC = metrics.areaUnderROC()
     println(s"Area under ROC = ${auROC}")
-    model.save(spark.sparkContext, "model")
-    
+    model
+        .save(spark.sparkContext, "model/svm-model")
+
     spark.stop()
-    
 }
